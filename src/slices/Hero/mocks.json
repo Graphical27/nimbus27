@@ -1,0 +1,36 @@
+[
+	{
+		"__TYPE__": "SharedSliceContent",
+		"variation": "default",
+		"primary": {
+			"heading": {
+				"__TYPE__": "StructuredTextContent",
+				"value": [
+					{
+						"type": "heading1",
+						"content": {
+							"text": "Probably"
+						}
+					}
+				]
+			},
+			"body": {
+				"__TYPE__": "StructuredTextContent",
+				"value": [
+					{
+						"type": "paragraph",
+						"content": {
+							"text": "Minim ipsum enim duis excepteur in reprehenderit do elit quis non laborum fugiat. Ipsum et nisi incididunt ullamco laboris commodo consequat reprehenderit officia excepteur magna incididunt."
+						}
+					}
+				]
+			},
+			"buy_button_text_here": {
+				"__TYPE__": "FieldContent",
+				"value": "field",
+				"type": "Text"
+			}
+		},
+		"items": []
+	}
+]
