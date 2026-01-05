@@ -104,7 +104,9 @@ const ColorChanger: FC<ColorChangerProps> = ({ slice }) => {
         camera={{ position: [0, 0.5, 0.5], fov: 45, zoom: 1.5 }}
         className="-mb-[10vh] grow"
       >
-        <Scene selectedTextureId={selectedTextureId} />
+        <Scene selectedTextureId={selectedTextureId} onAnimationComplete={function (): void {
+          throw new Error("Function not implemented.");
+        } } />
       </Canvas>
       <Bounded
         className="relative shrink-0"
