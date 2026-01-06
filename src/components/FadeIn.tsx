@@ -5,36 +5,40 @@ import clsx from "clsx";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef } from "react";
-import { contain } from "three/src/extras/TextureUtils.js";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 type FadeInProps = {
   children: React.ReactNode;
   vars?: gsap.TweenVars;
-  className?: string;
   start?: string;
-  targetchildren?: boolean;
+  className?: string;
+  targetChildren?: boolean;
 };
 
 export function FadeIn({
   children,
   className,
-  vars = {},
   start = "top 50%",
-  targetchildren = false,
+  targetChildren = false,
+  vars = {},
 }: FadeInProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    const target = targetchildren
+    const target = targetChildren
       ? containerRef.current?.children
       : containerRef.current;
+
     if (!target) return;
 
     const mm = gsap.matchMedia();
-    mm.add("(prefers-reduced-motion: no-prefrence", () => {
-      gsap.set(target, { opacity: 0, y: 60 });
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      gsap.set(target, {
+        opacity: 0,
+        y: 60,
+      });
 
       gsap.to(target, {
         duration: 0.8,

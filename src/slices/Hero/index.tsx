@@ -1,11 +1,16 @@
 "use client";
-import { Children, FC } from "react";
+import { FC, useRef } from "react";
 import { Content } from "@prismicio/client";
 import { PrismicRichText, SliceComponentProps } from "@prismicio/react";
 import "@/app/globals.css";
 import { Bounded } from "@/components/Bounded";
 import { Canvas } from "@react-three/fiber";
 import { Scene } from "./Scene";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { SplitText } from "gsap/SplitText";
+
+gsap.registerPlugin(useGSAP, SplitText);
 
 /**
  * Props for `Hero`.
@@ -16,20 +21,74 @@ export type HeroProps = SliceComponentProps<Content.HeroSlice>;
  * Component for "Hero" Slices.
  */
 const Hero: FC<HeroProps> = ({ slice }) => {
+  // 1. Create a ref for scoping
+  const container = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        // Safe check if element exists
+        const headingElement = container.current?.querySelector(".hero-heading");
+        if (!headingElement) return;
+
+        const split = new SplitText(headingElement, {
+          type: "lines,chars", // Added chars here specifically
+          linesClass: "line++",
+        });
+
+        // 2. Adjust timeline
+        const tl = gsap.timeline({
+          // The delay matches the Scene.tsx animation duration approx
+          delay: 4.2, 
+        });
+
+        tl.from(split.chars, {
+          opacity: 0,
+          y: -120,
+          ease: "back.out(1.7)", // slightly smoother back ease
+          duration: 1, // Increased slightly for visibility
+          stagger: 0.05,
+        })
+        .to(
+          ".hero-body",
+          {
+            opacity: 1,
+            y: 0, // Ensure it moves to natural position
+            duration: 1,
+            ease: "power2.out",
+          },
+          "-=0.5" // Overlap slightly with text finishing
+        );
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(".hero-heading", { opacity: 1 });
+        gsap.set(".hero-body", { opacity: 1 });
+      });
+    },
+    { scope: container } // Scope selectors to this component
+  );
+
   return (
     <section
+      ref={container}
       data-slice-type={slice.slice_type}
       data-slice-variation={slice.variation}
       className="blue-gradient-bg relative h-dvh text-white text-shadow-black/30 text-shadow-lg"
     >
-      <div className="hero-scene pointer-events-none sticky top-0 h-dvh w-full">
-        <Canvas shadows="soft">
+      <div className="hero-scene pointer-events-none sticky top-0 h-dvh w-full z-0">
+        <Canvas shadows="soft" dpr={[1, 2]}>
           <Scene />
         </Canvas>
       </div>
 
-      <div className="here-content absolute inset-x-0 top-0 h-dvh">
-        <Bounded
+      <div className="here-content absolute inset-x-0 top-0 h-dvh z-10 grid grid-cols-1">
+        {/* FIX 1: Removed 'opacity-0' from this Bounded. 
+           GSAP .from() will handle the initial hidden state of the characters.
+           */}
+           <Bounded
           fullWidth
           className="absolute inset-x-0 top-18 md:top-24 md:left-[8vw]"
         >
@@ -45,9 +104,12 @@ const Hero: FC<HeroProps> = ({ slice }) => {
           />
         </Bounded>
 
+        {/* FIX 2: Added 'opacity-0' here.
+           Ideally, we also translate it down slightly (translate-y-4) so GSAP can animate it up.
+        */}
         <Bounded
           fullWidth
-          className="hero-body absolute inset-x-0 bottom-9 md:right-[8vw] md:left-auto"
+          className="hero-body opacity-0 translate-y-4 absolute inset-x-0 bottom-9 md:right-[8vw] md:left-auto"
           innerClassName="flex flex-col gap-3 "
         >
           <div className="max-w-md">

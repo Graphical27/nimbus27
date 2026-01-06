@@ -32,7 +32,7 @@ const BentoBox: FC<BentoBoxProps> = ({ slice }) => {
         </h2>
       </FadeIn>
 
-      <FadeIn  targetchildren className="grid grid-cols-1 gap-4 md:grid-cols-6">
+      <FadeIn  targetChildren className="grid grid-cols-1 gap-4 md:grid-cols-6">
         {slice.primary.items.map((item) => (
           <BentoBoxItem key={asText(item.text)} item={item} />
         ))}
