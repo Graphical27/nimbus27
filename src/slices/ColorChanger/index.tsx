@@ -62,21 +62,27 @@ const ColorChanger: FC<ColorChangerProps> = ({ slice }) => {
     KEYCAP_TEXTURES[0].id,
   );
   const [backgroundText, setBackroundText] = useState(KEYCAP_TEXTURES[0].name);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   function handleTextureSelect(texture: KeycapTexture) {
-    if (texture.id === selectedTextureId) return;
+    if (texture.id === selectedTextureId || isAnimating) return;
 
+    setIsAnimating(true);
     setSelectedTextureId(texture.id);
     setBackroundText(
       KEYCAP_TEXTURES.find((t) => t.id === texture.id)?.name || "",
     );
   }
 
+  const handleAnimationComplete = useCallback(() => {
+    setIsAnimating(false);
+  }, []);
+
   return (
     <section
       data-slice-type={slice.slice_type}
       data-slice-variation={slice.variation}
-      className="relative flex h-[90vh] min-h-250 flex-col overflow-hidden bg-linear-to-br from-[#0f172a] to-[#062f4a] text-white"
+      className="relative flex h-[90vh] min-h-[1000px] flex-col overflow-hidden bg-linear-to-br from-[#0f172a] to-[#062f4a] text-white"
       id="keycap-changer"
     >
       {/* SVG background */}
@@ -104,9 +110,10 @@ const ColorChanger: FC<ColorChangerProps> = ({ slice }) => {
         camera={{ position: [0, 0.5, 0.5], fov: 45, zoom: 1.5 }}
         className="-mb-[10vh] grow"
       >
-        <Scene selectedTextureId={selectedTextureId} onAnimationComplete={function (): void {
-          throw new Error("Function not implemented.");
-        } } />
+        <Scene
+          selectedTextureId={selectedTextureId}
+          onAnimationComplete={handleAnimationComplete}
+        />
       </Canvas>
       <Bounded
         className="relative shrink-0"
@@ -125,11 +132,13 @@ const ColorChanger: FC<ColorChangerProps> = ({ slice }) => {
             <li key={texture.id}>
               <button
                 onClick={() => handleTextureSelect(texture)}
+                disabled={isAnimating}
                 className={clsx(
                   "flex aspect-square flex-col items-center justify-center rounded-lg border-2 p-4 hover:scale-105 motion-safe:transition-all motion-safe:duration-300",
                   selectedTextureId === texture.id
                     ? "border-[#81BFED] bg-[#81BFED]/20"
                     : "cursor-pointer border-gray-300 hover:border-gray-500",
+                  isAnimating && "cursor-not-allowed opacity-50",
                 )}
               >
                 <div className="mb-3 overflow-hidden rounded border-2 border-black bg-gray-100">
