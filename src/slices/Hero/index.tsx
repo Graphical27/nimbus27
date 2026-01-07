@@ -9,8 +9,9 @@ import { Scene } from "./Scene";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { SplitText } from "gsap/SplitText";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-gsap.registerPlugin(useGSAP, SplitText);
+gsap.registerPlugin(useGSAP, SplitText, ScrollTrigger);
 
 /**
  * Props for `Hero`.
@@ -30,7 +31,8 @@ const Hero: FC<HeroProps> = ({ slice }) => {
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         // Safe check if element exists
-        const headingElement = container.current?.querySelector(".hero-heading");
+        const headingElement =
+          container.current?.querySelector(".hero-heading");
         if (!headingElement) return;
 
         const split = new SplitText(headingElement, {
@@ -41,7 +43,7 @@ const Hero: FC<HeroProps> = ({ slice }) => {
         // 2. Adjust timeline
         const tl = gsap.timeline({
           // The delay matches the Scene.tsx animation duration approx
-          delay: 4.2, 
+          delay: 4.2,
         });
 
         tl.from(split.chars, {
@@ -50,16 +52,29 @@ const Hero: FC<HeroProps> = ({ slice }) => {
           ease: "back.out(1.7)", // slightly smoother back ease
           duration: 1, // Increased slightly for visibility
           stagger: 0.05,
-        })
-        .to(
-          ".hero-body",
+        }).to(".hero-body", {
+          opacity: 1,
+          y: 0, // Ensure it moves to natural position
+          duration: 1,
+          ease: "power2.out",
+        });
+
+        gsap.fromTo(
+          ".hero-scene",
           {
-            opacity: 1,
-            y: 0, // Ensure it moves to natural position
-            duration: 1,
-            ease: "power2.out",
+            background:
+              "linear-gradient(to bottom, #000000, #0f172a, #062f4a, #7fa0b9)",
           },
-          "-=0.5" // Overlap slightly with text finishing
+          {
+            background:
+              "linear-gradient(to bottom, #ffffff, #ffffff, #ffffff, #ffffff)",
+            scrollTrigger: {
+              trigger: ".hero",
+              start: "top top",
+              end: "50% bottom",
+              scrub: 1,
+            },
+          },
         );
       });
 
@@ -68,7 +83,7 @@ const Hero: FC<HeroProps> = ({ slice }) => {
         gsap.set(".hero-body", { opacity: 1 });
       });
     },
-    { scope: container } // Scope selectors to this component
+    { scope: container }, // Scope selectors to this component
   );
 
   return (
@@ -76,19 +91,19 @@ const Hero: FC<HeroProps> = ({ slice }) => {
       ref={container}
       data-slice-type={slice.slice_type}
       data-slice-variation={slice.variation}
-      className="blue-gradient-bg relative h-dvh text-white text-shadow-black/30 text-shadow-lg"
+      className="hero relative h-dvh text-white text-shadow-black/30 text-shadow-lg motion-safe:h-[300vh]"
     >
-      <div className="hero-scene pointer-events-none sticky top-0 h-dvh w-full z-0">
+      <div className="hero-scene pointer-events-none sticky top-0 z-0 h-dvh w-full">
         <Canvas shadows="soft" dpr={[1, 2]}>
           <Scene />
         </Canvas>
       </div>
 
-      <div className="here-content absolute inset-x-0 top-0 h-dvh z-10 grid grid-cols-1">
+      <div className="here-content absolute inset-x-0 top-0 z-10 grid h-dvh grid-cols-1">
         {/* FIX 1: Removed 'opacity-0' from this Bounded. 
            GSAP .from() will handle the initial hidden state of the characters.
            */}
-           <Bounded
+        <Bounded
           fullWidth
           className="absolute inset-x-0 top-18 md:top-24 md:left-[8vw]"
         >
@@ -109,7 +124,7 @@ const Hero: FC<HeroProps> = ({ slice }) => {
         */}
         <Bounded
           fullWidth
-          className="hero-body opacity-0 translate-y-4 absolute inset-x-0 bottom-9 md:right-[8vw] md:left-auto"
+          className="hero-body absolute inset-x-0 bottom-9 translate-y-4 opacity-0 md:right-[8vw] md:left-auto"
           innerClassName="flex flex-col gap-3 "
         >
           <div className="max-w-md">
