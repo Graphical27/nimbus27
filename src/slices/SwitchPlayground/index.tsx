@@ -20,7 +20,8 @@ import { LuVolume2 } from "react-icons/lu";
  * Props for `SwitchPlayground`.
  */
 export type SwitchPlaygroundProps =
-  SliceComponentProps<Content.SwitchPlaygroundSlice>;
+  SliceComponentProps<Content.SlicePlaygroundSlice>;
+  // SliceComponentProps<Content.SwithPlaygroundSlice>;
 
 /**
  * Component for "SwitchPlayground" Slices.
@@ -63,7 +64,7 @@ const SwitchPlayground: FC<SwitchPlaygroundProps> = ({ slice }) => {
 export default SwitchPlayground;
 
 type SharedCanvasProps = {
-  color: Content.SwitchPlaygroundSliceDefaultPrimarySwitchesItem["switch"];
+  color: Content.SlicePlaygroundSliceDefaultPrimarySwitchesItem["switch"];
 };
 
 const SharedCanvas = ({ color }: SharedCanvasProps) => {
