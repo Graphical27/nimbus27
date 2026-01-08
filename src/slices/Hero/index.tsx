@@ -71,7 +71,7 @@ const Hero: FC<HeroProps> = ({ slice }) => {
         // 2. Adjust timeline
         const tl = gsap.timeline({
           // The delay matches the Scene.tsx animation duration approx
-          delay: 4.2,
+          delay: 3.2,
         });
 
         tl.from(split.chars, {
@@ -165,7 +165,7 @@ const Hero: FC<HeroProps> = ({ slice }) => {
               }}
             />
           </div>
-          <button className="font-bold-slanted group flex w-fit cursor-pointer items-center gap-1 rounded bg-[#01A7E1] px-3 py-1 text-2xl uppercase transition disabled:grayscale">
+          <button className="font-bold-slanted group flex w-fit cursor-pointer items-center gap-1 rounded-md bg-[#01A7E1] px-4 py-2 text-2xl uppercase text-white shadow-lg transition hover:bg-[#0190c1] hover:shadow-xl disabled:grayscale">
             {slice.primary.buy_button_text_here}
             <span className="transition group-hover:translate-x-1">{">"}</span>
           </button>

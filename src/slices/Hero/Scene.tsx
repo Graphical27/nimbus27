@@ -8,6 +8,8 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/all";
 import gsap from "gsap";
 import { useFrame, useThree } from "@react-three/fiber";
+import { SOUND_MAP } from "@/components/Switch";
+import { CODE_TO_KEY_MAP } from "./keyMapping";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -85,6 +87,83 @@ export function Scene() {
 
   const [lightIntensityScaler, setLightIntensityScaler] = useState(0);
 
+  // Audio State
+  const [audioBuffers, setAudioBuffers] = useState<HTMLAudioElement[]>([]);
+
+  useEffect(() => {
+    // Preload sounds
+    const sounds = [
+      ...SOUND_MAP.blue,
+      ...SOUND_MAP.brown,
+      ...SOUND_MAP.red, 
+      ...SOUND_MAP.black
+    ].map((url) => {
+        const a = new Audio(url);
+        a.volume = 0.3; // Lower volume for typing
+        return a;
+    });
+    setAudioBuffers(sounds);
+  }, []);
+
+  const playSound = () => {
+    if (audioBuffers.length === 0) return;
+    const sound = audioBuffers[Math.floor(Math.random() * audioBuffers.length)];
+    // Clone node to allow overlapping plays of same sound
+    const clone = sound.cloneNode() as HTMLAudioElement; 
+    clone.volume = sound.volume;
+    clone.play().catch(() => {});
+  };
+
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!keyboardAnimationRef.current) return;
+      const keyName = CODE_TO_KEY_MAP[event.code];
+      
+      if (keyName && keyboardAnimationRef.current.keys[keyName]?.current) {
+        event.preventDefault(); // Prevent scrolling for mapped keys
+        const keyMesh = keyboardAnimationRef.current.keys[keyName].current;
+        
+        // Kill existing animations to prevent glitches
+        gsap.killTweensOf(keyMesh.position);
+
+        // Press down
+        gsap.to(keyMesh.position, {
+          y: -0.1, // Depress amount
+          duration: 0.05,
+          ease: "power2.out"
+        });
+
+        playSound();
+      }
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+       if (!keyboardAnimationRef.current) return;
+      const keyName = CODE_TO_KEY_MAP[event.code];
+
+      if (keyName && keyboardAnimationRef.current.keys[keyName]?.current) {
+         const keyMesh = keyboardAnimationRef.current.keys[keyName].current;
+         
+         // Spring back up
+         gsap.to(keyMesh.position, {
+          y: 0, // Original position (relative)
+          duration: 0.1,
+          ease: "elastic.out(1, 0.5)"
+        });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [audioBuffers]); // Re-bind if audio buffers change (though they shouldn't often)
+
+
   useGSAP(() => {
     const mm = gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)", () => {
@@ -97,7 +176,7 @@ export function Scene() {
         { val: 0 },
         {
           val: 1,
-          duration: 3.5,
+          duration: 2.5,
           delay: 0.5,
           ease: "power2.inOut",
           onUpdate: function () {
@@ -413,9 +492,9 @@ export function Scene() {
         position={[-2, 1.5, 1]}
         intensity={30 * lightIntensityScaler}
         castShadow
-        shadow-bias={-0.0002}
+        shadow-bias={-0.001}
         shadow-normalBias={0.002}
-        shadow-mapSize={1024}
+        shadow-mapSize={2048}
       />
     </group>
   );
