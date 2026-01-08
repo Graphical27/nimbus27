@@ -134,7 +134,7 @@ const SharedCanvas = ({ color }: SharedCanvasProps) => {
                 {colorName}
                 {colorName}
               </tspan>
-            ))}
+            ))} 
           </text>
         </svg>
       </div>
