@@ -39,7 +39,7 @@ export function Keycap({
   const keycapTexture = useTexture(uvTexture);
   keycapTexture.flipY = false;
 
-  keycapTexture.colorSpace = THREE.SRGBColorSpace
+  keycapTexture.colorSpace = THREE.SRGBColorSpace;
 
   const placeholderMat = new THREE.MeshStandardMaterial({
     map: keycapTexture,
